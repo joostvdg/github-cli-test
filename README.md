@@ -111,3 +111,11 @@ curl -X PUT -H 'Authorization: token ${TOKEN}' \
     -d '{"message": "Seconf","content": "ewogICAgImZvbyI6ICJiYXIyIgp9", "committer": {"name": "Joost van der Griendt","email": "joostvdg@gmail.com"}, "sha": "8a79687628fe86b467ec0e87e7e155c4661caa4f"}' \
     https://api.github.com/repos/joostvdg/github-cli-test-env/contents/test.json
 ```
+
+## Kubernetes
+
+### Create Secret
+
+```sh
+kubectl create secret generic ghcs-api-token --from-literal=apitoken=mysecrettoken
+```

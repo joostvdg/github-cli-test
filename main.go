@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+
 	"github.com/google/go-github/v30/github"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/pelletier/go-toml"
 	"golang.org/x/oauth2"
-	"io/ioutil"
-	"net/http"
-	"os"
 )
 
 type Repository struct {
@@ -82,6 +83,7 @@ func main() {
 			return h(cc)
 		}
 	})
+	e.GET("/health", healthCheck)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
@@ -91,6 +93,14 @@ func main() {
 		port = "1323"
 	}
 	e.Logger.Fatal(e.Start(":" + port))
+}
+
+func healthCheck(c echo.Context) error {
+	cc := c.(*CustomContext)
+	if cc.RepositoryOwner != "" && cc.Repository != "" && cc.APIToken != "" {
+		return c.String(http.StatusOK, "OK")
+	}
+	return c.String(http.StatusInternalServerError, "No Configuration found")
 }
 
 func studentEnvironmentRequest(c echo.Context) error {

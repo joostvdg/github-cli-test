@@ -3,3 +3,9 @@ build: fmt
 
 fmt:
 	go fmt ./...
+
+dbuild: fmt
+	docker build --tag caladreas/ghcs:latest .
+
+dpush: dbuild
+	docker push caladreas/ghcs:latest

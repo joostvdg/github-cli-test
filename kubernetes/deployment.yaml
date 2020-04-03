@@ -1,0 +1,67 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: ghcs
+  namespace: ghcs
+spec:
+  selector:
+    matchLabels:
+      app: ghcs
+  template:
+    metadata:
+      labels:
+        app: ghcs
+    spec:
+      containers:
+      - name: ghcs
+        image: caladreas/ghcs:latest
+        volumeMounts:
+        - name: ghcs-config-volume
+          mountPath: /etc/config
+        - name: ghcs-apitoken-volume
+          mountPath: "/etc/apitoken"
+          readOnly: true
+        env:
+        - name: CONFIG_LOCATION
+          value: "/etc/config/config.toml"
+        - name: TOKEN_LOCATION
+          value: "/etc/apitoken/apitoken"
+        - name: PORT
+          value: "8080"
+        ports:
+          - containerPort: 8080
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 30
+        resources:
+          limits:
+            memory: "25Mi"
+            cpu: "100m"
+          requests:
+            memory: "25Mi"
+            cpu: "100m"
+      volumes:
+        - name: ghcs-config-volume
+          configMap:
+            name: ghcs-config
+        - name: ghcs-apitoken-volume
+          secret:
+            secretName: ghcs-api-token
+            items:
+            - key: apitoken
+              path: apitoken
